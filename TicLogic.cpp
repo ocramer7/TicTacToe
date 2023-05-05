@@ -6,156 +6,198 @@
 #include <thread>
 #include <chrono>
 
-using namespace std;
 
-TicLogic::TicLogic() = default;
-TicLogic::~TicLogic() = default;
+namespace CSC2034 {
 
-// The size of the game board
-const int BOARD_SIZE = 3;
-
-// The markers for the player and computer
-const char PLAYER_MARKER = 'X';
-const char COMPUTER_MARKER = 'O';
-
-// The game board
-char board[BOARD_SIZE][BOARD_SIZE];
-
-
-// Initializes the game board with empty cells
-void TicLogic::initialize_board() {
-    for (int row = 0; row < BOARD_SIZE; row++) {
-        for (int col = 0; col < BOARD_SIZE; col++) {
-            board[row][col] = ' ';
-        }
+    TicLogic* TicLogic::makeGame() {
+        return new TicLogic;
     }
-}
 
-// Prints the game board to the console
-void TicLogic::print_board() {
-    cout << "-------------\n";
-    for (int row = 0; row < BOARD_SIZE; row++) {
-        cout << "|";
-        for (int col = 0; col < BOARD_SIZE; col++) {
-            cout << " " << board[row][col] << " |";
-        }
-        cout << "\n-------------\n";
+    // Game Start!
+    void TicLogic::start() {
+        run();
     }
-}
 
-// Checks whether a player has won the game
-bool TicLogic::check_win(char marker) {
-    // Check rows
-    for (int row = 0; row < BOARD_SIZE; row++) {
-        bool row_win = true;
-        for (int col = 0; col < BOARD_SIZE; col++) {
-            if (board[row][col] != marker) {
-                row_win = false;
-                break;
+    TicLogic::TicLogic() {}
+    TicLogic::~TicLogic() {}
+
+    const int boardSize = 3;
+    const char player1 = 'X';
+    const char player2 = 'O'; // Will substitute with computer if no player2 is available.
+
+    char board[boardSize][boardSize];
+
+    void TicLogic::initialize_board() {
+        for (int row = 0; row < boardSize; row++) {
+            for (int col = 0; col < boardSize; col++) {
+                board[row][col] = ' ';
             }
         }
-        if (row_win) {
-            return true;
+    }
+
+    void TicLogic::print_board() {
+        cout << "-------------\n";
+        for (int row = 0; row < boardSize; row++) {
+            cout << "|";
+            for (int col = 0; col < boardSize; col++) {
+                cout << " " << board[row][col] << " |";
+            }
+            cout << "\n-------------\n";
         }
     }
-    // Check columns
-    for (int col = 0; col < BOARD_SIZE; col++) {
-        bool col_win = true;
-        for (int row = 0; row < BOARD_SIZE; row++) {
-            if (board[row][col] != marker) {
-                col_win = false;
-                break;
+
+    bool TicLogic::check_win(char marker) {
+        // Check rows
+        for (int row = 0; row < boardSize; row++) {
+            bool row_win = true;
+            for (int col = 0; col < boardSize; col++) {
+                if (board[row][col] != marker) {
+                    row_win = false;
+                    break;
+                }
+            }
+            if (row_win) {
+                return true;
             }
         }
-        if (col_win) {
+        // Check columns
+        for (int col = 0; col < boardSize; col++) {
+            bool col_win = true;
+            for (int row = 0; row < boardSize; row++) {
+                if (board[row][col] != marker) {
+                    col_win = false;
+                    break;
+                }
+            }
+            if (col_win) {
+                return true;
+            }
+        }
+        // Check diagonals
+        bool diag1_win = true;
+        bool diag2_win = true;
+        for (int i = 0; i < boardSize; i++) {
+            if (board[i][i] != marker) {
+                diag1_win = false;
+            }
+            if (board[i][boardSize - i - 1] != marker) {
+                diag2_win = false;
+            }
+        }
+        if (diag1_win || diag2_win) {
             return true;
         }
+        return false;
     }
-    // Check diagonals
-    bool diag1_win = true;
-    bool diag2_win = true;
-    for (int i = 0; i < BOARD_SIZE; i++) {
-        if (board[i][i] != marker) {
-            diag1_win = false;
+
+    bool TicLogic::check_draw() {
+        for (int row = 0; row < boardSize; row++) {
+            for (int col = 0; col < boardSize; col++) {
+                if (board[row][col] == ' ') {
+                    return false;
+                }
+            }
         }
-        if (board[i][BOARD_SIZE - i - 1] != marker) {
-            diag2_win = false;
-        }
-    }
-    if (diag1_win || diag2_win) {
         return true;
     }
-    return false;
-}
 
-// Checks whether the game has ended in a draw
-bool TicLogic::check_draw() {
-    for (int row = 0; row < BOARD_SIZE; row++) {
-        for (int col = 0; col < BOARD_SIZE; col++) {
-            if (board[row][col] == ' ') {
-                return false;
+    void TicLogic::player_move(char player) {
+        int row, col;
+        cout << "Player " << player << " Enter row (1-" << boardSize << "): ";
+        cin >> row;
+        cout << "Player " << player << " Enter column (1-" << boardSize << "): ";
+        cin >> col;
+        row--;
+        col--;
+        if (row < 0 || row >= boardSize || col < 0 || col >= boardSize || board[row][col] != ' ') {
+            cout << "Invalid move! Try again.\n";
+            player_move(player);
+        } else {
+            board[row][col] = player;
+        }
+    }
+
+    void TicLogic::computer_move() {
+        srand(time(NULL));
+        int row, col;
+        do {
+            row = rand() % boardSize;
+            col = rand() % boardSize;
+        } while (board[row][col] != ' ');
+        cout << "Computer plays row " << row + 1 << " column " << col + 1 << ".\n"; // We add 1 to the row and col because arrays technically start at 0.
+        board[row][col] = player2;
+    }
+
+
+    void TicLogic::run() {
+        int choice;
+        cout << "Welcome to TicTacToe!\n";
+        cout << "How would you like to play?\n"
+                "Play against another player or against the computer?\n"
+                "[1 for player, 2 for computer]: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            initialize_board();
+            print_board();
+            while (true) {
+                // Player1's turn
+                cout << "Player " << player1 << endl;
+                player_move(player1);
+                print_board();
+                if (check_win(player1)) {
+                    cout << "Player " << player1 << " wins!\n";
+                    break;
+                }
+                if (check_draw()) {
+                    cout << "It's a draw!\n";
+                    break;
+                }
+                this_thread::sleep_for(chrono::milliseconds(1000));
+
+                //Player2's turn
+                cout << "Player " << player2 << endl;
+                player_move(player2);
+                print_board();
+                if (check_win(player2)) {
+                    cout << "Player " << player2 << " wins!\n";
+                    break;
+                }
+                if (check_draw()) {
+                    cout << "It's a draw!\n";
+                    break;
+                }
+                this_thread::sleep_for(chrono::milliseconds(1000));
+            }
+
+        } else if (choice == 2) {
+            initialize_board();
+            print_board();
+            while (true) {
+                player_move(player1);
+                print_board();
+                if (check_win(player1)) {
+                    cout << "You win!\n";
+                    break;
+                }
+                if (check_draw()) {
+                    cout << "It's a draw!\n";
+                    break;
+                }
+                this_thread::sleep_for(chrono::milliseconds(1000));
+                computer_move();
+                print_board();
+                if (check_win(player2)) {
+                    cout << "Computer wins!\n";
+                    break;
+                }
+                if (check_draw()) {
+                    cout << "It's a draw!\n";
+                    break;
+                }
+                this_thread::sleep_for(chrono::milliseconds(1000));
+                system("CLS");
             }
         }
-    }
-    return true;
-}
-
-// The player's turn
-void TicLogic::player_turn() {
-    int row, col;
-    cout << "Enter row (1-" << BOARD_SIZE << "): "  << endl;
-    cin >> row;
-    cout << "Enter column (1-" << BOARD_SIZE << "): " << endl;
-    cin >> col;
-    row--;
-    col--;
-    if (row < 0 || row >= BOARD_SIZE || col < 0 || col >= BOARD_SIZE || board[row][col] != ' ') {
-        cout << "Invalid move! Try again.\n";
-        player_turn();
-    } else {
-        board[row][col] = PLAYER_MARKER;
-    }
-}
-
-// The computer's turn
-void TicLogic::computer_turn() {
-    srand(time(NULL));
-    int row, col;
-    do {
-        row = rand() % BOARD_SIZE;
-        col = rand() % BOARD_SIZE;
-    } while (board[row][col] != ' ');
-    cout << "Computer plays row " << row + 1 << " column " << col + 1 << ".\n";
-    board[row][col] = COMPUTER_MARKER;
-}
-
-// The game loop
-void TicLogic::play_game() {
-    initialize_board();
-    print_board();
-    while (true) {
-        player_turn();
-        print_board();
-        if (check_win(PLAYER_MARKER)) {
-            cout << "You win!\n";
-            break;
-        }
-        if (check_draw()) {
-            cout << "It's a draw!\n";
-            break;
-        }
-        this_thread::sleep_for(chrono::milliseconds(1000));
-        computer_turn();
-        print_board();
-        if (check_win(COMPUTER_MARKER)) {
-            cout << "You lose!\n";
-            break;
-        }
-        if (check_draw()) {
-            cout << "It's a draw!\n";
-            break;
-        }
-        this_thread::sleep_for(chrono::milliseconds(1000));
-        system("CLS");
     }
 }

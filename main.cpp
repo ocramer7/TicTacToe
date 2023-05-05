@@ -13,10 +13,12 @@
 #include "TicLogic.h"
 
 using namespace std;
+using namespace CSC2034;
 
 int main() {
-    cout << "Welcome to TicTacToe!\n";
-    TicLogic playgame;
-    playgame.play_game();
+    TicLogic* game = NULL;
+    TicLogic::makeGame();
+    game->start();
+
     return 0;
 }
