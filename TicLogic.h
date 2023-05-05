@@ -1,7 +1,3 @@
-//
-// Created by owencramer on 5/1/2023.
-//
-
 #ifndef WOLFCASINO_TICLOGIC_H
 #define WOLFCASINO_TICLOGIC_H
 

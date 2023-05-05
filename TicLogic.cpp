@@ -1,7 +1,3 @@
-//
-// Created by owencramer on 5/1/2023.
-//
-
 #include "TicLogic.h"
 #include <thread>
 #include <chrono>
