@@ -14,15 +14,15 @@ namespace CSC2034 {
         run();
     }
 
-    TicLogic::TicLogic() {}
-    TicLogic::~TicLogic() {}
+    TicLogic::TicLogic() {} // Constructor
+    TicLogic::~TicLogic() {} // Destructor
 
     const int boardSize = 3;
     const char player1 = 'X';
     const char player2 = 'O'; // Will substitute with computer if no player2 is available.
 
     char board[boardSize][boardSize];
-
+    // Generate the board
     void TicLogic::initialize_board() {
         for (int row = 0; row < boardSize; row++) {
             for (int col = 0; col < boardSize; col++) {
@@ -30,7 +30,7 @@ namespace CSC2034 {
             }
         }
     }
-
+    // Print the board
     void TicLogic::print_board() {
         cout << "-------------\n";
         for (int row = 0; row < boardSize; row++) {
@@ -96,7 +96,7 @@ namespace CSC2034 {
         }
         return true;
     }
-
+    // Player movement
     void TicLogic::player_move(char player) {
         int row, col;
         cout << "Player " << player << " Enter row (1-" << boardSize << "): ";
@@ -112,7 +112,7 @@ namespace CSC2034 {
             board[row][col] = player;
         }
     }
-
+    // Computer movement if computer player is selected
     void TicLogic::computer_move() {
         srand(time(NULL));
         int row, col;
@@ -125,7 +125,7 @@ namespace CSC2034 {
     }
 
 
-    void TicLogic::run() {
+    void TicLogic::run() { // Main runner for TicTacToe
         int choice;
         cout << "Welcome to TicTacToe!\n";
         cout << "How would you like to play?\n"
